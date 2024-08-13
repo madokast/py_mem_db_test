@@ -1,20 +1,17 @@
-
-import time
-import sqlite3
 import pandas as pd
-
-db = sqlite3.connect(':memory:')
+import pandasql as ps
+import time
 
 start = time.time()
 df = pd.read_csv('tax_10w.csv', dtype={'salary':float, 'rate':float, 'singleexemp':float, 'marriedexemp':float, 'childexemp': float})
-for _ in range(10): # 扩展到 100w
-    df.to_sql('tax100w', db, if_exists='append')
+tax100w = pd.concat([df] * 10)
 print(f'read csv {time.time() - start}s')
 
 # 展示数据
-print('table length' ,db.execute('SELECT COUNT(1) FROM tax100w').fetchone())
-# for row in db.execute('SELECT * FROM tax100w LIMIT 10').fetchall():
-#     print(row)
+start = time.time()
+print('table length\n', ps.sqldf('SELECT COUNT(1) FROM tax100w', locals()))
+print(f'SELECT COUNT(1) {time.time() - start}s')
+
 
 # 计算每个州的平均工资
 # SELECT state, AVG(salary) FROM tax100w GROUP BY state
